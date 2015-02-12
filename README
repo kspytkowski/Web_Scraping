@@ -1,0 +1,37 @@
+Projekt: Web Scraping.
+Stworzony projekt to aplikacja pozwalająca klientom uzyskać informacje o kilku składnikach pogody w danej lokalizacji na najbliższe pare godzin. 
+
+Język: Erlang
+
+Struktura projektu: OTP
+
+Wspomaganie: Rebar
+
+Biblioteka do parsowania dokumentów html: mochiweb
+
+Biblioteka do wyłuskiwania wartości z dokumentów html po ich XPath'ach: mochiweb_xpath
+
+Architektura aplikacji:
+            webscraping_app (application)
+                          |
+            webscraping_sup (supervisor)
+                /                  \
+webscraping_srv(gen_server)    webscraping_scrapers_sup (supervisor)
+                                            | ... |
+                              webscraping_simple_scraper (gen_server)
+
+Działanie: Klient wysyła zapytanie do serwera z prośbą o podanie pogody w danej lokalizacji. Serwer uruchamia proces "kolektora" informacji o pogodzie i wysyła zapytania do wszystkich scraper'ów. Każdy scraper wyłuskuje informacje o jednym składniku pogody (ze strony internetowej jaka mu została przypisana przy inicjalizacji), a następnie odsyła uzyskane wyniki kolektorowi. Ten zaś zbiera wszystkie wartości i odsyła klientowi informację o przewidywanej na najbliższe pare godzin pogodzie. 
+
+Kompilacja: make
+Przy pierwszej kompilacji pobrane zostaną do folderu deps biblioteki (mochiweb oraz mochiweb_xpath)
+
+Uruchamianie aplikacji: make run
+Należy zauważyć, że w celach demonstracyjnych (przy startowaniu i działaniu aplikacji będzie się pojawiać dużo logów) oraz aby zasymulować komunikację klient-serwer korzystam z rpc. Po zastosowaniu powyższej komendy w terminalu zostanie uruchomione środowisko Erlanga z opcją "-sname master". 
+
+Zatrzymywanie aplikacji: application:stop(webscraping).
+
+Uruchamianie klientów: należy w osobych terminalach uruchamiać klientów komendą erl -sname DOWOLNA_NAZWA. Komenda do komunikacji z aplikacją to rpc:call('SERWER_NODE', webscraping_srv, actual_weather, ["WOJEWODZTWO", "MIASTO"]), gdzie:
+SERWER_NODE - utworzona nazwa node'a, wystarczy sprawdzić w terminalu, na którym uruchomiona została aplikacja
+WOJEWODZTWO - slaskie | malopolskie | mazowieckie | warminsko-mazurskie itd.
+MIASTO - myslowice | krakow | warszawa | olsztyn itd.
+np. rpc:call('master@ubuntu', webscraping_srv, actual_weather, ["malopolskie", "krakow"]).

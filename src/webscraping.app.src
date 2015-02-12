@@ -1,0 +1,9 @@
+{application, webscraping,
+ [
+  {description, "Web scraping application"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [kernel, stdlib, asn1, crypto, public_key, ssl, inets, xmerl, compiler, syntax_tools, mochiweb, mochiweb_xpath]},
+  {mod, { webscraping_app, []}},
+  {env, []}
+ ]}.
